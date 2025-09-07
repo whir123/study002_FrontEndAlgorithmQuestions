@@ -1,0 +1,33 @@
+<!-- 请补全JavaScript代码，要求如下：
+1. 给"ul"标签添加点击事件
+2. 当点击某"li"标签时，该标签内容拼接"."符号。如：某"li"标签被点击时，该标签内容为".."
+注意：
+1. 必须使用DOM0级标准事件（onclick） -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      /* 填写样式 */
+    </style>
+  </head>
+
+  <body>
+    <ul>
+      <li>.</li>
+      <li>.</li>
+      <li>.</li>
+    </ul>
+    <!-- 填写标签 -->
+    <script type="text/javascript">
+      // 【 填写JavaScript 】
+      document.querySelector("ul").onclick = (event) => {
+        // ⚠️ 与 addEventListener('click', handler) 不同：addEventListener 可以添加多个监听器、可以指定捕获/冒泡阶段
+        if(event.target.tagName.toLowerCase() === "li") {
+            // ⚠️ event.target ｜ 指向实际被点击的最深层元素（事件的起始目标）不是处理器挂载到的元素
+            event.target.innerHTML += "."; // ⚠️ innerHTML 返回该元素内部的 HTML 字符串
+        };
+      };
+    </script>
+  </body>
+</html>
