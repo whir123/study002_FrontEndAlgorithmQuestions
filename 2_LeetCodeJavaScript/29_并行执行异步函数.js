@@ -11,19 +11,22 @@
  */
 
 var promiseAll = function(functions) {
-    // ⚠️ 要保证返回数组与原顺序一致，必须用 results[i] = val 记录每个 Promise 的返回值，而不能用 push
-    // ⚠️ 用一个计数器 resolvedCount 判断所有 resolve 时机，只要等于函数总数全部成功即可 resolve
     return new Promise((res, rej)=>{
         const results = [];
         let finished = false;
+        // ⚠️ 用一个计数器 resolvedCount 判断所有 resolve 时机，只要等于函数总数全部成功即可 resolve
         let count = 0;
+
         const n = functions.length;
-        if(n===0){return resolve([])};
+        if(n===0){return res([])};
+
         functions.forEach((fn,i)=>{
             fn().then((val)=>{
+                // ⚠️ 要保证返回数组与原顺序一致，必须用 results[i] = val 记录每个 Promise 的返回值，而不能用 push
                 results[i] = val;
                 count ++;
-                if(count===n){
+                if(count===n && !finished){
+                    finished = true;
                     res(results);
                 }
             }).catch((err)=>{
@@ -39,12 +42,22 @@ var promiseAll = function(functions) {
 const functions1 = [
     () => new Promise(resolve => setTimeout(() => resolve(5), 200))
 ];
-promiseAll(functions1).then(console.log); // [5]
+promiseAll(functions1).then(console.log); 
+// => [5] （200ms 后输出）
 // {"t": 200, "resolved": [5]} | 单个函数在 200 毫秒后以值 5 成功解析
 
 const functions2 = [
     () => new Promise(resolve => setTimeout(() => resolve(1), 500)), 
-    () => new Promise((resolve, reject) => setTimeout(() => reject("Error"), 100))
+    () => new Promise((resolve, reject) => setTimeout(() => reject("Error"), 300))
 ];
-promiseAll(functions2).then(console.log);
-// {"t": 100, "rejected": "Error"} | 由于其中一个 promise 被拒绝，返回的 promise 也在同一时间被拒绝并返回相同的错误。
+promiseAll(functions2).then(console.log).catch(console.error);
+// => "Error" （300ms 时立刻报错）
+// {"t": 300, "rejected": "Error"} | 由于其中一个 promise 被拒绝，返回的 promise 也在同一时间被拒绝并返回相同的错误
+
+const functions3 = [
+    () => new Promise(resolve => setTimeout(() => resolve("A"), 500)),
+    () => new Promise(resolve => setTimeout(() => resolve("B"), 600)),
+    () => new Promise(resolve => setTimeout(() => resolve("C"), 700))
+];
+promiseAll(functions3).then(console.log);
+// => ["A", "B", "C"] （700ms 后输出，顺序按输入）
