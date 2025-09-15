@@ -24,3 +24,17 @@ function deepClone(obj) {
 };
 
 // ⭐️ 考虑循环引用的深拷贝
+function deepClonePlus(obj, map=new WeakMap()) {
+    if (typeof obj !== 'object' || obj === null) return obj;
+    if (map.has(obj)) return map.get(obj); // ⚠️ 检查循环引用
+
+    const copy = Array.isArray(obj) ? [] : {};
+    map.set(obj, copy); // ⚠️
+
+    for (const k in copy) {
+        if(obj.hasOwnProperty(k)) {
+            copy[k] = deepClonePlus(obj[k], map); // ⚠️ 递归记得把map传回去
+        };
+    };
+    return copy;
+};
