@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+       /* 填写样式 */
+    </style>
+</head>
+
+<body>
+    <!-- 填写标签 -->
+    <script type="text/javascript">
+        // 查找两个节点的最近的一个共同父节点，可以包括节点自身
+        // 输入描述：oNode1 和 oNode2 在同一文档中，且不会为相同的节点
+        function commonParentNode(oNode1, oNode2) {
+            // 1.记录 oNode1 的祖先节点
+            let ancestors = new Set();
+            let cur = oNode1;
+            while (cur) {
+                ancestors.add(cur);
+                cur = cur.parentNode;
+            };
+            // 2.遍历 oNode2 的祖先节点找匹配
+            cur = oNode2;
+            while (cur) {
+                if (ancestors.has(cur)) return cur;
+                cur = cur.parentNode;
+            };
+            return null;
+        };
+    </script>
+</body>
+
+</html>
