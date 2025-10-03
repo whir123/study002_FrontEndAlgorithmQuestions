@@ -40,35 +40,40 @@ class HashTable {
         // 3 判断新增还是修改原来的值
         let idx = this.hashFunc(key, this.limit);
         let bucket = this.storage[idx];
-        if (bucket===null) {
+        if (bucket===undefined) {
             bucket = [];
             this.storage[idx] = bucket;
         };
-        for (const tuple of bucket) {
+        const n = bucket.length;
+        for (let i=0; i<n; i++) {
+            let tuple = bucket[i];
             if (tuple[0]===key) {
-                tuple[1] = value; //修改值
+                tuple[1] = value; // 找到原来存在值 修改值 return
                 return;
             };
         };
-        bucket.push([key, value]);
+        bucket.push([key, value]); // 否则push新值
         this.count++;
     };
 
     get (key) { //【获取】
         let idx = this.hashFunc(key, this.limit);
         let bucket = this.storage[idx];
-        if (bucket===null) return null;
-        for (const tuple of bucket) {
+        if (bucket===undefined) return undefined;
+        const n = bucket.length;
+        for (let i=0; i<n; i++) {
+            let tuple = bucket[i];
             if (tuple[0]===key) return tuple[1];
         };
-        return null;
+        return undefined;
     };
 
     remove (key) { //【删除】
         let idx = this.hashFunc(key, this.limit);
         let bucket = this.storage[idx];
-        if (bucket===null) return null;
-        for (let i=0; i<bucket.length; i++) {
+        if (bucket===undefined) return undefined;
+        const n = bucket.length;
+        for (let i=0; i<n; i++) {
             const tuple = bucket[i];
             if (tuple[0]===key) {
                 bucket.splice(i,1);
@@ -76,6 +81,23 @@ class HashTable {
                 return tuple[1];
             };
         };
-        return null;
+        return undefined;
     };
+
+    isEmpty () {return this.count===0;};
+
+    size () {return this.count;}
 };
+
+//【---测试---】
+let ht = new HashTable();
+ht.put('aa', 123);
+ht.put('bb', '789');
+ht.put('cc', 473);
+
+console.log(ht.get('aa')); // 数字123
+console.log(ht.get('bb')); // 字符串789
+
+ht.remove('aa');
+console.log(ht.get('aa')); // undefined
+console.log(ht.get('cc')); // 数字473
