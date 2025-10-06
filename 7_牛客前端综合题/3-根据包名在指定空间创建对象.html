@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+       /* 填写样式 */
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript">
+        // 根据包名，在指定空间中创建对象
+        // 输入描述：namespace({a: {test: 1, b: 2}}, 'a.b.c.d')
+        // 输出描述：{a: {test: 1, b: {c: {d: {}}}}}
+        function namespace(oNamespace, sPackage) {
+            let curObj = oNamespace;
+            let sPackageArr = sPackage.split('.');
+            for (const s of sPackageArr) {
+                if (!curObj.hasOwnProperty(s)
+                ||typeof curObj[s]!=='object'
+                ||curObj[s]===null) {
+                    curObj[s] = {};
+                };
+                curObj = curObj[s];
+            };
+            return oNamespace;
+        };
+        // 用例输入：
+        // function () { 
+        //      var a = {};
+        //      var r = namespace(a, 'a.b.c.d.e.f.g');
+        //      a.a.b.c.d.e.f.g = 1;
+        //      return a.a.b.c.d.e.f.g === 1;
+        // }
+        // 用例输出：
+        // true;
+    </script>
+</body>
+
+</html>
