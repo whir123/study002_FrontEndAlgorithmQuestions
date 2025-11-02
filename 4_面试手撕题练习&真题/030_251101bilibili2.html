@@ -1,0 +1,207 @@
+<!-- id为‘magnifier’的‘section’节点是一个图片弹窗预览模块
+而‘magnifier’对象用于初始化该模块 该模块功能如下： 
+1 点击所给的小图 会弹窗显示该图的大图 
+2 点击大图右上角的‘X’ 大图会关闭 
+3 点击大图的‘>’ 将会显示下一幅图片 依次循环 
+4 点击大图的‘<’ 将会显示上一幅图片 依次循环 -->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>图片放大镜预览</title>
+  <style>
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .column {
+      flex: 1;
+    }
+    .hover-shadow {
+      transition: box-shadow 0.3s;
+    }
+    .hover-shadow:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .cursor {
+      cursor: pointer;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.8);
+    }
+    .modal-content {
+      position: relative;
+      margin: 5% auto;
+      padding: 0;
+      width: 80%;
+      max-width: 700px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    }
+    .close {
+      color: #aaa;
+      position: absolute;
+      top: 10px; right: 25px;
+      font-size: 32px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+    .close:hover, .close:focus {
+      color: #f00;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .bigImg {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .bigImg img {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 4px;
+    }
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      padding: 16px;
+      margin-top: -22px;
+      color: #333;
+      font-weight: bold;
+      font-size: 32px;
+      user-select: none;
+      background: rgba(255,255,255,0.7);
+      border-radius: 50%;
+      z-index: 1000;
+    }
+    .prev { left: 10px; }
+    .next { right: 10px; }
+    .prev:hover, .next:hover {
+      background: #eee;
+      color: #f00;
+    }
+  </style>
+</head>
+<body>
+  <h2>图片放大镜预览 Demo</h2>
+  <div id="magnifier"></div>
+  <script>
+    var magnifier = {
+      // ⚠️ magnifier 对象，包含三个主要方法：init、createElement、initEvent，用于实现图片放大镜预览功能
+      init(param) {
+        const el = param.el;
+        const src = param.src;
+        if (!el || !src) return;
+        this.createElement(el, src);
+        this.initEvent();
+      },
+
+      createElement(el, src) {
+        // 创建 .row 容器
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "row";
+        // 循环 src 数组 为每个图片创建 .column + <img> 设置样式和类名,插入到.row
+        for (let imgSrc of src) {
+          const columnDiv = document.createElement("div");
+          columnDiv.className = "column";
+          const img = document.createElement("img");
+          img.src = imgSrc;
+          img.style.width = "100%";
+          img.className = "hover-shadow cursor";
+          columnDiv.appendChild(img);
+          rowDiv.appendChild(columnDiv);
+        }
+        const modalDiv = document.createElement("div");
+        modalDiv.id = "myModal";
+        modalDiv.className = "modal";
+        const span = document.createElement("span");
+        span.className = "close cursor";
+        span.innerHTML = "&times;";
+        const modalContentDiv = document.createElement("div");
+        modalContentDiv.className = "modal-content";
+        modalDiv.appendChild(span);
+        modalDiv.appendChild(modalContentDiv);
+        for (let imgSrc of src) {
+          const slideDiv = document.createElement("div");
+          slideDiv.className = "bigImg";
+          const img = document.createElement("img");
+          img.src = imgSrc;
+          img.style.width = "100%";
+          slideDiv.appendChild(img);
+          modalContentDiv.appendChild(slideDiv);
+        }
+        const a1 = document.createElement("a");
+        a1.className = "prev";
+        a1.innerHTML = "&#10094;";
+        const a2 = document.createElement("a");
+        a2.className = "next";
+        a2.innerHTML = "&#10095;";
+        modalContentDiv.appendChild(a1);
+        modalContentDiv.appendChild(a2);
+        el.appendChild(rowDiv);
+        el.appendChild(modalDiv);
+      },
+      initEvent() {
+        const imgs = document.querySelectorAll(".hover-shadow");
+        const span = document.getElementsByClassName("close")[0];
+        const prev = document.getElementsByClassName("prev")[0];
+        const next = document.getElementsByClassName("next")[0];
+        const myModal = document.getElementById("myModal");
+
+        let bigImgIndex = 0;
+
+        for (let i = 0; i < imgs.length; i++) {
+          imgs[i].onclick = function () {
+            myModal.style.display = "block";
+            bigImgIndex = i;
+            showBigImg(bigImgIndex);
+          };
+        }
+
+        span.onclick = function () {
+          myModal.style.display = "none";
+        };
+
+        prev.onclick = function () {
+          showBigImg((bigImgIndex -= 1));
+        };
+        next.onclick = function () {
+          showBigImg((bigImgIndex += 1));
+        };
+
+        function showBigImg(n) {
+          const bigImgs = document.getElementsByClassName("bigImg");
+          if (n >= bigImgs.length) bigImgIndex = 0;
+          if (n < 0) bigImgIndex = bigImgs.length - 1;
+
+          for (let i = 0; i < bigImgs.length; i++) {
+            bigImgs[i].style.display = "none";
+          }
+          bigImgs[bigImgIndex].style.display = "block";
+        }
+      },
+    };
+
+    magnifier.init({ // 初始化入口
+      el: document.getElementById("magnifier"), // 属性1 容器元素
+      src: [ // 图片数组路径
+        "030_demo/demo1.jpg",
+        "030_demo/demo2.jpg",
+        "030_demo/demo3.jpg",
+        "030_demo/demo4.jpg",
+      ],
+    });
+  </script>
+</body>
+</html>
