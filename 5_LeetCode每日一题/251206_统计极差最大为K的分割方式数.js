@@ -5,41 +5,7 @@
  */
 
 var countPartitions = function(nums, k) {
-    // ⚠️ dp[i] => nums[0...i] 的分割方法数
-    // ⚠️ 滑动窗口找每个i的合法起点
-    const MOD = 1e9 + 7;
-    const n = nums.length;
 
-    const dp = new Array(n).fill(0);
-    const prefix = new Array(n).fill(0); // 前缀和
-
-    const minQ = [], maxQ = []; // 单调队列：维护窗口min/max
-
-    let l = 0;
-    for (let r=0; r<n; r++){
-        while (minQ.length && nums[minQ[minQ.length-1]] > nums[r]){
-            minQ.pop();
-        };
-        minQ.push(r);
-        while (maxQ.length && nums[maxQ[maxQ.length-1]] < nums[r]){
-            maxQ.pop();
-        };
-        maxQ.push(r);
-
-        while (nums[maxQ[0]]-nums[minQ[0]]>k){ // 缩小窗口 直到满足 max-min<=k
-            l++;
-            if (minQ[0]<l) minQ.shift();
-            if (maxQ[0]<l) maxQ.shift();
-        };
-        if (l===0) {
-            dp[r] = (prefix[r-1]||0) + 1;
-        } else {
-            dp[r] = (prefix[r-1] - prefix[l-2] + MOD) % MOD;
-        };
-
-        prefix[r] = (dp[r] + (prefix[r-1]||0)) % MOD;
-    };
-    return dp[n-1];
 };
 
 const nums1 = [9,4,1,3,7], k1 = 4;
