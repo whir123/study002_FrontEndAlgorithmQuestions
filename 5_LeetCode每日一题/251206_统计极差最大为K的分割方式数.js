@@ -5,7 +5,45 @@
  */
 
 var countPartitions = function(nums, k) {
+    const mod = 1e9 + 7;
+    const n = nums.length;
 
+    const dp = Array(n + 1).fill(0);
+    const pre = Array(n + 1).fill(0);
+
+    dp[0] = 1;
+    pre[0] = 1;
+
+    const maxQ = [];
+    const minQ = [];
+
+    let left = 0;
+
+    for (let i = 0; i < n; i++) {
+        // 加入 maxQ（递减）
+        while (maxQ.length && maxQ[maxQ.length - 1] < nums[i]) maxQ.pop();
+        maxQ.push(nums[i]);
+        // 加入 minQ（递增）
+        while (minQ.length && minQ[minQ.length - 1] > nums[i]) minQ.pop();
+        minQ.push(nums[i]);
+
+        // 移动 left 直到满足 max-min ≤ k
+        while (maxQ[0] - minQ[0] > k) {
+            // 如果要移走 nums[left]
+            if (maxQ[0] === nums[left]) maxQ.shift();
+            if (minQ[0] === nums[left]) minQ.shift();
+            left++;
+        }
+
+        // dp[i+1]: 以 nums[0..i] 的前 i+1 个为结尾
+        // 有效的 j 的范围是 [left..i]
+        const total = (pre[i] - (left === 0 ? 0 : pre[left - 1]) + mod) % mod;
+
+        dp[i + 1] = total;
+        pre[i + 1] = (pre[i] + dp[i + 1]) % mod;
+    }
+
+    return dp[n];
 };
 
 const nums1 = [9,4,1,3,7], k1 = 4;
