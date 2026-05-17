@@ -10,7 +10,7 @@
 var canReach = function(arr, start) {
     const visited = new Set();
 
-    function dfs(index){
+    function dfs(index){ //【 ⚠️ 深度优先搜索 】
         if (index<0 || index>=arr.length){
             return false;
         };
